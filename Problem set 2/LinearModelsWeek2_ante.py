@@ -23,18 +23,17 @@ def estimate(y: np.ndarray, x: np.ndarray, transform='', N=None, T=None) -> dict
         dict: A dictionary with the results from the ols-estimation.
     """
     
-    b_hat = None # Fill in
-    resid = None # Fill in
-    SSR = None # Fill in
-    SST = None # Fill in
-    R2 = None # Fill in
+    b_hat = la.inv((x.T@x))@(x.T@y)
+    resid = y - x@b_hat
+    SSR = resid.T@resid
+    SST = (y - np.mean(y)).T@(y - np.mean(y))
+    R2 = 1 - SSR/SST
 
     sigma, cov, se = variance(transform, SSR, x, N, T)
-    t_values =  None # Fill in
-    
+    t_values = b_hat/se
     names = ['b_hat', 'se', 'sigma', 't_values', 'R2', 'cov']
     results = [b_hat, se, sigma, t_values, R2, cov]
-    return dict(zip(names, results))
+    return names, results
 
     
 def est_ols( y: np.ndarray, x: np.ndarray) -> np.ndarray:
@@ -78,16 +77,16 @@ def variance(
     K=x.shape[1]
 
     if transform in ('', 're', 'fd'):
-          sigma = None # Fill in
+          sigma = SSR/(N*T-K)
     elif transform.lower() == 'fe':
-          sigma = None # Fill in
+          sigma = SSR/(N-K)
     elif transform.lower() in ('be'): 
-          sigma = None # Fill in
+          sigma = SSR/(T-K)
     else:
         raise Exception('Invalid transform provided.')
     
-    cov =  None # Fill in
-    se =  None # Fill in
+    cov = sigma*la.inv(x.T@x)
+    se = np.sqrt(np.diag(cov)) 
     return sigma, cov, se
 
 
