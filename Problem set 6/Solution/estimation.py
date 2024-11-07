@@ -16,8 +16,9 @@ def forward_diff(func, x0, h=1.49e-08):
 
 
 
-
-
+def Q1(theta):
+    Q = 1/theta + np.exp(theta)
+    return Q
 
 
 
