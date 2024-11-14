@@ -1,4 +1,3 @@
-import numpy as np
 from numpy import linalg as la
 import pandas as pd 
 from scipy import optimize

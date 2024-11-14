@@ -42,9 +42,10 @@ def estimate(
     Q = lambda theta: np.mean(q(theta, y, x))
 
     # call optimizer
-    result = None # FILL IN: use "optimize.minimize" on the function Q, remember to give it **kwargs and options
+    result = optimize.minimize(Q, theta0, options=options, **kwargs)
+    # FILL IN: use "optimize.minimize" on the function Q, remember to give it **kwargs and options
 
-    
+
     # compute standard errors 
     cov, se = variance(q, y, x, result, cov_type)   
 
@@ -94,23 +95,23 @@ def variance(
 
     if cov_type in ['Hessian', 'Sandwich']: 
         H_sum = sum_of_hessians(f_q, thetahat)
-        A = None # Fill in
+        # I don't include the minus sign in front of the average, jf. the code-version of the Wooldridge-notation.
+        # the difference is that the score and Hessian are the first and second order derivatives on ll-contributions,
+        # not the first and second order derivatives of the negative of the ll contribution
+        A = H_sum / N
     
     # cov: P*P covariance matrix of theta 
     if cov_type == 'Hessian':
-        A_inv = None # Fill in
-        cov = None # FILL IN 
+        A_inv = la.inv(A) # N^-1 * Ahat^_1
+        cov = 1/N * A_inv
     elif cov_type == 'Outer Product':
-        cov = None # FILL IN 
+        cov = 1/N * la.inv(B) # N^-1 * Bhat^_1
     elif cov_type == 'Sandwich':
-        A_inv = None # Fill in
-        cov = None # FILL IN 
+        A_inv = la.inv(A)
+        cov = 1/N * A_inv @ B @ A_inv
 
-    # se: P-vector of std.errs. 
-    if cov.all == None: 
-        pass # this allows the file to be called before we have computed "cov" above :) 
-    else: 
-        se = None # FILL IN: formula that uses the matrix cov 
+    # se: P-vector of std.errs.
+    se = np.sqrt(np.diag(cov)) 
 
     return cov, se
 
