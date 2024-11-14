@@ -10,12 +10,13 @@ name = 'Logit'
 DOCHECKS = True 
 
 def G(z): 
-    # Fill in 
-    return None
+    '''Logit link function: the standard logistic CDF, used to
+    transform the latent index into a probability.
+    '''
+    return 1.0 / (1.0 + np.exp(-z))
 
 def q(theta, y, x): 
-    # Fill in 
-    return None
+    return - loglikelihood(theta, y, x)
 
 def loglikelihood(theta, y, x):
 
@@ -30,20 +31,23 @@ def loglikelihood(theta, y, x):
         assert theta.size == K 
 
     # Fill in 
-    Gxb = None
+    Gxb = G(x@theta)
     
     # 2. avoid log(0.0) errors
     Gxb = np.fmax(Gxb, 1e-8)     # truncate below at 0.00000001
     Gxb = np.fmin(Gxb, 1.-1e-8) # truncate above at 0.99999999
 
     # Fill in 
-    ll =  None 
-
+    ll = (y == 1) * np.log(Gxb) + (y == 0) * np.log(1-Gxb)
     return ll
 
 def starting_values(y,x): 
-    # Fill in
-    return None
+    ''' starting values for the logit model,
+    based on the OLS estimates of the linear model'''
+    b_ols = lm.estimate(y, x)['b_hat']
+    starting_values = 4 * b_ols
+    starting_values.ndim == 1
+    return starting_values
 
 def predict(theta, x): 
     # the "prediction" is the response probability, Pr(y=1|x)
